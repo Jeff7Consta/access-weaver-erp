@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -7,9 +8,9 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronDown, ChevronRight, LogOut, Menu as MenuIcon } from "lucide-react";
-import * as Icons from "lucide-react";
+import * as LucideIcons from "lucide-react";
 
-type LucideIcon = keyof typeof Icons;
+type LucideIcon = keyof typeof LucideIcons;
 
 export function Sidebar() {
   const { menus, logout, user } = useAuth();
@@ -40,8 +41,12 @@ export function Sidebar() {
   const renderMenuIcon = (iconName: string | undefined) => {
     if (!iconName) return null;
     
-    const IconComponent = Icons[iconName as LucideIcon];
-    return IconComponent ? <IconComponent className="h-5 w-5" /> : null;
+    // Fix: Check if iconName exists in LucideIcons and properly render it
+    if (iconName in LucideIcons) {
+      const Icon = LucideIcons[iconName as LucideIcon];
+      return <Icon className="h-5 w-5" />;
+    }
+    return null;
   };
 
   const renderMenuItem = (menu: MenuType) => {
