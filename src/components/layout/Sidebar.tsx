@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -41,12 +40,9 @@ export function Sidebar() {
   const renderMenuIcon = (iconName: string | undefined) => {
     if (!iconName) return null;
     
-    // Fix: Check if iconName exists in LucideIcons and properly render it
-    if (iconName in LucideIcons) {
-      const Icon = LucideIcons[iconName as LucideIcon];
-      return <Icon className="h-5 w-5" />;
-    }
-    return null;
+    // Check if iconName exists in LucideIcons and properly render it
+    const IconComponent = (LucideIcons as Record<string, any>)[iconName];
+    return IconComponent ? <IconComponent className="h-5 w-5" /> : null;
   };
 
   const renderMenuItem = (menu: MenuType) => {
