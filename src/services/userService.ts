@@ -9,7 +9,19 @@ export const getUsers = async (): Promise<User[]> => {
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data as User[];
+  
+  // Transform snake_case to camelCase
+  return data.map(item => ({
+    id: item.id,
+    name: item.name,
+    email: item.email,
+    role: item.role,
+    groupId: item.group_id,
+    accessLevelId: item.access_level_id,
+    status: item.status,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at
+  })) as User[];
 };
 
 export const getUserById = async (id: string): Promise<User> => {
@@ -20,14 +32,25 @@ export const getUserById = async (id: string): Promise<User> => {
     .single();
 
   if (error) throw error;
-  return data as User;
+  
+  // Transform snake_case to camelCase
+  return {
+    id: data.id,
+    name: data.name,
+    email: data.email,
+    role: data.role,
+    groupId: data.group_id,
+    accessLevelId: data.access_level_id,
+    status: data.status,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at
+  } as User;
 };
 
 export const createUser = async (user: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User> => {
   const { data, error } = await supabase
     .from('users')
     .insert({
-      id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,

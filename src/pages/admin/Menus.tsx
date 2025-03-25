@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,7 +73,6 @@ export default function MenusPage() {
       ]);
       setMenus(menuData);
       
-      // Create a flat list of all menus for parent selection
       const allMenus: Menu[] = [];
       const flattenMenus = (items: Menu[], level = 0) => {
         items.forEach(item => {
@@ -268,7 +266,6 @@ export default function MenusPage() {
     setIsDialogOpen(false);
   };
 
-  // Get available icons
   const availableIcons = Object.keys(LucideIcons).filter(
     key => typeof LucideIcons[key as keyof typeof LucideIcons] === 'function'
   );

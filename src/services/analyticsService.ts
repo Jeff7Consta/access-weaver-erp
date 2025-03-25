@@ -140,7 +140,7 @@ export const deletePowerBIReport = async (id: string): Promise<void> => {
 
 export const getPowerBIEmbedInfo = async (reportId: string): Promise<{ embedToken: string; embedUrl: string }> => {
   const { data, error } = await supabase.functions.invoke('powerbi-embed', {
-    queryParams: { reportId }
+    body: { reportId }
   });
 
   if (error) throw error;
