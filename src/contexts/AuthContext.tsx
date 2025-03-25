@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Redirect based on user role
       if (authResponse.user.role === 'admin') {
-        navigate('/admin/dashboard');
+        navigate('/dashboard');
       } else {
         navigate('/dashboard');
       }

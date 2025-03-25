@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      access_levels: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_levels_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "access_levels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analytics_queries: {
         Row: {
           columns: Json | null
@@ -38,6 +73,149 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      groups: {
+        Row: {
+          access_level_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_level_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_level_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_access_level_id_fkey"
+            columns: ["access_level_id"]
+            isOneToOne: false
+            referencedRelation: "access_levels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      menus: {
+        Row: {
+          access_level_id: string | null
+          created_at: string | null
+          external_url: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          order: number
+          parent_id: string | null
+          requires_auth: boolean | null
+          route: string | null
+          screen_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_level_id?: string | null
+          created_at?: string | null
+          external_url?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          order?: number
+          parent_id?: string | null
+          requires_auth?: boolean | null
+          route?: string | null
+          screen_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_level_id?: string | null
+          created_at?: string | null
+          external_url?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          order?: number
+          parent_id?: string | null
+          requires_auth?: boolean | null
+          route?: string | null
+          screen_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menus_access_level_id_fkey"
+            columns: ["access_level_id"]
+            isOneToOne: false
+            referencedRelation: "access_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menus_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "menus"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menus_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: false
+            referencedRelation: "screens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permissions: {
+        Row: {
+          access_level_id: string
+          actions: Json
+          created_at: string | null
+          id: string
+          resource_id: string
+          resource_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_level_id: string
+          actions?: Json
+          created_at?: string | null
+          id?: string
+          resource_id: string
+          resource_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_level_id?: string
+          actions?: Json
+          created_at?: string | null
+          id?: string
+          resource_id?: string
+          resource_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permissions_access_level_id_fkey"
+            columns: ["access_level_id"]
+            isOneToOne: false
+            referencedRelation: "access_levels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       powerbi_reports: {
         Row: {
@@ -71,6 +249,98 @@ export type Database = {
           workspace_id?: string | null
         }
         Relationships: []
+      }
+      screens: {
+        Row: {
+          access_level_id: string | null
+          content: string
+          content_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_level_id?: string | null
+          content: string
+          content_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_level_id?: string | null
+          content?: string
+          content_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screens_access_level_id_fkey"
+            columns: ["access_level_id"]
+            isOneToOne: false
+            referencedRelation: "access_levels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          access_level_id: string | null
+          created_at: string | null
+          email: string
+          group_id: string | null
+          id: string
+          name: string
+          role: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_level_id?: string | null
+          created_at?: string | null
+          email: string
+          group_id?: string | null
+          id: string
+          name: string
+          role: string
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_level_id?: string | null
+          created_at?: string | null
+          email?: string
+          group_id?: string | null
+          id?: string
+          name?: string
+          role?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_access_level_id_fkey"
+            columns: ["access_level_id"]
+            isOneToOne: false
+            referencedRelation: "access_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
