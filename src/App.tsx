@@ -39,28 +39,31 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             
-            {/* User routes */}
-            <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
-            
-            {/* Analytics routes */}
-            <Route path="/analytics/queries" element={<MainLayout><AnalyticsQueries /></MainLayout>} />
-            <Route path="/analytics/queries/new" element={<MainLayout><AnalyticsQueryForm /></MainLayout>} />
-            <Route path="/analytics/queries/:id/edit" element={<MainLayout><AnalyticsQueryForm initialData={undefined} /></MainLayout>} />
-            <Route path="/analytics/queries/:id/run" element={<MainLayout><AnalyticsQueryRunner /></MainLayout>} />
-            
-            {/* PowerBI routes */}
-            <Route path="/powerbi/reports" element={<MainLayout><PowerBIReports /></MainLayout>} />
-            <Route path="/powerbi/reports/new" element={<MainLayout><PowerBIReportForm /></MainLayout>} />
-            <Route path="/powerbi/reports/:id/edit" element={<MainLayout><PowerBIReportForm initialData={undefined} /></MainLayout>} />
-            <Route path="/powerbi/reports/:id/view" element={<MainLayout><PowerBIViewer /></MainLayout>} />
-            
-            {/* Admin routes */}
-            <Route path="/admin/dashboard" element={<MainLayout requireAdmin><Dashboard /></MainLayout>} />
-            <Route path="/admin/users" element={<MainLayout requireAdmin><UsersPage /></MainLayout>} />
-            <Route path="/admin/groups" element={<MainLayout requireAdmin><GroupsPage /></MainLayout>} />
-            <Route path="/admin/access-levels" element={<MainLayout requireAdmin><AccessLevelsPage /></MainLayout>} />
-            <Route path="/admin/menus" element={<MainLayout requireAdmin><MenusPage /></MainLayout>} />
-            <Route path="/admin/screens" element={<MainLayout requireAdmin><ScreensPage /></MainLayout>} />
+            {/* Protected routes wrapped in MainLayout */}
+            <Route element={<MainLayout />}>
+              {/* User routes */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              
+              {/* Analytics routes */}
+              <Route path="/analytics/queries" element={<AnalyticsQueries />} />
+              <Route path="/analytics/queries/new" element={<AnalyticsQueryForm />} />
+              <Route path="/analytics/queries/:id/edit" element={<AnalyticsQueryForm initialData={undefined} />} />
+              <Route path="/analytics/queries/:id/run" element={<AnalyticsQueryRunner />} />
+              
+              {/* PowerBI routes */}
+              <Route path="/powerbi/reports" element={<PowerBIReports />} />
+              <Route path="/powerbi/reports/new" element={<PowerBIReportForm />} />
+              <Route path="/powerbi/reports/:id/edit" element={<PowerBIReportForm initialData={undefined} />} />
+              <Route path="/powerbi/reports/:id/view" element={<PowerBIViewer />} />
+              
+              {/* Admin routes */}
+              <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/users" element={<UsersPage />} />
+              <Route path="/admin/groups" element={<GroupsPage />} />
+              <Route path="/admin/access-levels" element={<AccessLevelsPage />} />
+              <Route path="/admin/menus" element={<MenusPage />} />
+              <Route path="/admin/screens" element={<ScreensPage />} />
+            </Route>
             
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />

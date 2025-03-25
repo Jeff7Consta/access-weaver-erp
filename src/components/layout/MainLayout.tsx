@@ -2,10 +2,10 @@
 import { ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, Outlet } from "react-router-dom";
 
 interface MainLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
   requireAdmin?: boolean;
 }
 
@@ -40,7 +40,7 @@ export function MainLayout({ children, requireAdmin = false }: MainLayoutProps) 
       <Sidebar />
       <main className="flex-1 overflow-auto">
         <div className="container p-6 animate-page-transition">
-          {children}
+          {children || <Outlet />}
         </div>
       </main>
     </div>

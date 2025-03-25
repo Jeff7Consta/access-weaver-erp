@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   CircleUser, Database, GanttChart, LayoutDashboard, 
@@ -111,42 +110,40 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <LayoutDashboard className="h-8 w-8 text-muted-foreground" />
-        </div>
-
-        {isLoading ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {[...Array(7)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
-                <CardHeader className="h-20 bg-muted/50"></CardHeader>
-                <CardContent className="p-6">
-                  <div className="h-4 w-1/2 bg-muted rounded"></div>
-                  <div className="h-8 w-1/3 bg-muted rounded mt-2"></div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {stats.map((stat, index) => (
-              <Card key={index} className="overflow-hidden">
-                <CardHeader className="bg-primary/5 flex flex-row items-center justify-between space-y-0 pb-4">
-                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                  {stat.icon}
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="text-3xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground mt-2">{stat.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <LayoutDashboard className="h-8 w-8 text-muted-foreground" />
       </div>
-    </MainLayout>
+
+      {isLoading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {[...Array(7)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="h-20 bg-muted/50"></CardHeader>
+              <CardContent className="p-6">
+                <div className="h-4 w-1/2 bg-muted rounded"></div>
+                <div className="h-8 w-1/3 bg-muted rounded mt-2"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {stats.map((stat, index) => (
+            <Card key={index} className="overflow-hidden">
+              <CardHeader className="bg-primary/5 flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                {stat.icon}
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="text-3xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground mt-2">{stat.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
