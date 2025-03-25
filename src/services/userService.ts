@@ -21,7 +21,7 @@ export const getUsers = async (): Promise<User[]> => {
     status: item.status,
     createdAt: item.created_at,
     updatedAt: item.updated_at
-  })) as User[];
+  }));
 };
 
 export const getUserById = async (id: string): Promise<User> => {
@@ -44,10 +44,11 @@ export const getUserById = async (id: string): Promise<User> => {
     status: data.status,
     createdAt: data.created_at,
     updatedAt: data.updated_at
-  } as User;
+  };
 };
 
 export const createUser = async (user: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User> => {
+  // Convert camelCase to snake_case
   const { data, error } = await supabase
     .from('users')
     .insert({
@@ -74,7 +75,7 @@ export const createUser = async (user: Omit<User, "id" | "createdAt" | "updatedA
     status: data.status,
     createdAt: data.created_at,
     updatedAt: data.updated_at
-  } as User;
+  };
 };
 
 export const updateUser = async (id: string, user: Partial<User>): Promise<User> => {
@@ -107,7 +108,7 @@ export const updateUser = async (id: string, user: Partial<User>): Promise<User>
     status: data.status,
     createdAt: data.created_at,
     updatedAt: data.updated_at
-  } as User;
+  };
 };
 
 export const deleteUser = async (id: string): Promise<void> => {
