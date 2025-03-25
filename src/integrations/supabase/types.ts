@@ -9,7 +9,69 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      analytics_queries: {
+        Row: {
+          columns: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          sql_query: string
+          updated_at: string | null
+        }
+        Insert: {
+          columns?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          sql_query: string
+          updated_at?: string | null
+        }
+        Update: {
+          columns?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          sql_query?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      powerbi_reports: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          embed_url: string | null
+          id: string
+          name: string
+          report_id: string
+          updated_at: string | null
+          workspace_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          embed_url?: string | null
+          id?: string
+          name: string
+          report_id: string
+          updated_at?: string | null
+          workspace_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          embed_url?: string | null
+          id?: string
+          name?: string
+          report_id?: string
+          updated_at?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

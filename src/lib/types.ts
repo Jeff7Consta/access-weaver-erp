@@ -1,4 +1,3 @@
-
 export type User = {
   id: string;
   name: string;
@@ -80,4 +79,30 @@ export type AuthResponse = {
   user: User;
   token: string;
   menus: Menu[];
+};
+
+export type AnalyticsQuery = {
+  id: string;
+  name: string;
+  description?: string;
+  sql_query: string;
+  columns?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PowerBIReport = {
+  id: string;
+  name: string;
+  description?: string;
+  report_id: string;
+  workspace_id?: string;
+  embed_url?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AnalyticsQueryResult = {
+  data: Record<string, any>[];
+  columns: string[];
 };
