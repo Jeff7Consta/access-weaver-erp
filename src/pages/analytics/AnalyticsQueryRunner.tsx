@@ -2,12 +2,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Download, ArrowLeft, Play } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Play, Download, Filter } from "lucide-react";
 import { AnalyticsQuery, AnalyticsQueryResult } from "@/lib/types";
 import { getAnalyticsQueryById, executeAnalyticsQuery } from "@/services/analyticsService";
 
@@ -16,12 +18,13 @@ export default function AnalyticsQueryRunner() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [query, setQuery] = useState<AnalyticsQuery | null>(null);
+  const [sqlQuery, setSqlQuery] = useState("");
   const [queryResult, setQueryResult] = useState<AnalyticsQueryResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isExecuting, setIsExecuting] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [activeTab, setActiveTab] = useState("data");
+  const [filters, setFilters] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!id) return;
@@ -31,6 +34,7 @@ export default function AnalyticsQueryRunner() {
       try {
         const data = await getAnalyticsQueryById(id);
         setQuery(data);
+        setSqlQuery(data.sql_query);
       } catch (error) {
         console.error("Error loading query:", error);
         setError("Failed to load the query. Please try again later.");
@@ -42,62 +46,101 @@ export default function AnalyticsQueryRunner() {
     loadQuery();
   }, [id]);
 
-  const executeQuery = async () => {
-    if (!query) return;
-    
-    setIsExecuting(true);
+  const handleRunQuery = async () => {
+    setIsRunning(true);
     setError(null);
-
+    
     try {
-      // In a real app, this would execute the SQL query
-      const result = await executeAnalyticsQuery(query.sql_query);
+      const result = await executeAnalyticsQuery(sqlQuery);
       setQueryResult(result);
-      setCurrentPage(1);
+      setActiveTab("data");
+      
+      toast({
+        title: "Query executed successfully",
+        description: `Retrieved ${result.data.length} rows.`,
+      });
     } catch (error) {
       console.error("Error executing query:", error);
-      setError("Failed to execute the query. Please check the SQL syntax and try again.");
-      setQueryResult(null);
+      setError(typeof error === 'string' ? error : error.message || "An error occurred while executing the query.");
+      
+      toast({
+        title: "Query execution failed",
+        description: "Please check the SQL syntax and try again.",
+        variant: "destructive",
+      });
     } finally {
-      setIsExecuting(false);
+      setIsRunning(false);
     }
   };
 
-  const downloadCsv = () => {
-    if (!queryResult) return;
-
-    const { data, columns } = queryResult;
-    const header = columns.join(",");
-    const rows = data.map(row => 
-      columns.map(col => {
+  const downloadCSV = () => {
+    if (!queryResult || !queryResult.data.length) return;
+    
+    // Get all columns
+    const columns = queryResult.columns;
+    
+    // Create CSV header row
+    let csv = columns.join(',') + '\n';
+    
+    // Create data rows
+    queryResult.data.forEach(row => {
+      const dataRow = columns.map(col => {
         const value = row[col];
-        // Handle values that might contain commas or quotes
-        return typeof value === "string" 
-          ? `"${value.replace(/"/g, '""')}"`
-          : value;
-      }).join(",")
-    );
+        // Handle values that might contain commas, quotes, etc.
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      });
+      csv += dataRow.join(',') + '\n';
+    });
     
-    const csv = [header, ...rows].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    // Create download link
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${query?.name || "query"}_${new Date().toISOString().split("T")[0]}.csv`);
-    link.style.visibility = "hidden";
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${query?.name || 'query-result'}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Calculate pagination
-  const totalPages = queryResult ? Math.ceil(queryResult.data.length / itemsPerPage) : 0;
-  const paginatedData = queryResult 
-    ? queryResult.data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-    : [];
+  const handleFilterChange = (column: string, value: string) => {
+    setFilters({
+      ...filters,
+      [column]: value
+    });
+  };
+
+  const getFilteredData = () => {
+    if (!queryResult) return [];
+    
+    return queryResult.data.filter(row => {
+      return Object.entries(filters).every(([column, filterValue]) => {
+        if (!filterValue.trim()) return true;
+        
+        const cellValue = row[column];
+        if (cellValue === null || cellValue === undefined) return false;
+        
+        return String(cellValue).toLowerCase().includes(filterValue.toLowerCase());
+      });
+    });
+  };
+
+  const filteredData = getFilteredData();
 
   if (isLoading) {
-    return <div className="py-8 text-center">Loading query...</div>;
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <p>Loading query...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!query) {
@@ -105,7 +148,10 @@ export default function AnalyticsQueryRunner() {
       <Alert variant="destructive">
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
-          The requested query could not be found. <Button variant="link" onClick={() => navigate("/analytics/queries")}>Return to queries</Button>
+          The requested query could not be found. 
+          <Button variant="link" onClick={() => navigate("/analytics/queries")}>
+            Return to queries
+          </Button>
         </AlertDescription>
       </Alert>
     );
@@ -115,42 +161,54 @@ export default function AnalyticsQueryRunner() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => navigate("/analytics/queries")}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={() => navigate("/analytics/queries")}
+          >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h1 className="text-2xl font-bold">{query.name}</h1>
         </div>
+        
         <div className="flex gap-2">
-          <Button onClick={executeQuery} disabled={isExecuting}>
-            <Play className="mr-2 h-4 w-4" />
-            {isExecuting ? "Executing..." : "Run Query"}
+          <Button 
+            variant="outline" 
+            onClick={downloadCSV} 
+            disabled={!queryResult || queryResult.data.length === 0}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
           </Button>
-          {queryResult && (
-            <Button variant="outline" onClick={downloadCsv}>
-              <Download className="mr-2 h-4 w-4" />
-              Export CSV
-            </Button>
-          )}
+          
+          <Button 
+            onClick={handleRunQuery} 
+            disabled={isRunning}
+          >
+            <Play className="mr-2 h-4 w-4" />
+            {isRunning ? "Running..." : "Run Query"}
+          </Button>
         </div>
       </div>
 
       {query.description && (
-        <Card>
-          <CardContent className="pt-6">
-            <p>{query.description}</p>
-          </CardContent>
-        </Card>
+        <p className="text-muted-foreground">{query.description}</p>
       )}
 
       <Card>
         <CardHeader>
           <CardTitle>SQL Query</CardTitle>
-          <CardDescription>This SQL query will be executed on your database</CardDescription>
+          <CardDescription>Review or modify the SQL query below</CardDescription>
         </CardHeader>
         <CardContent>
-          <pre className="bg-muted p-4 rounded-md overflow-x-auto">
-            <code>{query.sql_query}</code>
-          </pre>
+          <div className="space-y-4">
+            <textarea
+              value={sqlQuery}
+              onChange={(e) => setSqlQuery(e.target.value)}
+              className="w-full h-32 p-2 border rounded-md font-mono text-sm"
+              placeholder="Enter SQL query..."
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -164,96 +222,73 @@ export default function AnalyticsQueryRunner() {
       {queryResult && (
         <Card>
           <CardHeader>
-            <CardTitle>Results</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle>Query Results</CardTitle>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
+                <TabsList>
+                  <TabsTrigger value="data">Data</TabsTrigger>
+                  <TabsTrigger value="filters">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Filters
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
             <CardDescription>
-              Showing {paginatedData.length} of {queryResult.data.length} rows
+              {filteredData.length} rows returned {filteredData.length !== queryResult.data.length && 
+                `(filtered from ${queryResult.data.length})`}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    {queryResult.columns.map((column) => (
-                      <TableHead key={column}>{column}</TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedData.map((row, rowIndex) => (
-                    <TableRow key={rowIndex}>
+            <TabsContent value="filters" className="p-0">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+                {queryResult.columns.map((column) => (
+                  <div key={column} className="space-y-2">
+                    <Label htmlFor={`filter-${column}`}>{column}</Label>
+                    <Input
+                      id={`filter-${column}`}
+                      placeholder={`Filter by ${column}...`}
+                      value={filters[column] || ''}
+                      onChange={(e) => handleFilterChange(column, e.target.value)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            <TabsContent value="data" className="p-0">
+              <div className="border rounded-md overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
                       {queryResult.columns.map((column) => (
-                        <TableCell key={column}>
-                          {row[column] !== null && row[column] !== undefined 
-                            ? String(row[column]) 
-                            : "-"}
-                        </TableCell>
+                        <TableHead key={column}>{column}</TableHead>
                       ))}
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-
-            {totalPages > 1 && (
-              <div className="mt-4">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        disabled={currentPage === 1}
-                      />
-                    </PaginationItem>
-                    
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(page => 
-                        page === 1 || 
-                        page === totalPages || 
-                        Math.abs(page - currentPage) <= 1
-                      )
-                      .map((page, i, array) => {
-                        // Add ellipsis
-                        if (i > 0 && page > array[i - 1] + 1) {
-                          return (
-                            <React.Fragment key={`ellipsis-${page}`}>
-                              <PaginationItem>
-                                <span className="px-2">...</span>
-                              </PaginationItem>
-                              <PaginationItem>
-                                <PaginationLink
-                                  isActive={page === currentPage}
-                                  onClick={() => setCurrentPage(page)}
-                                >
-                                  {page}
-                                </PaginationLink>
-                              </PaginationItem>
-                            </React.Fragment>
-                          );
-                        }
-                        
-                        return (
-                          <PaginationItem key={page}>
-                            <PaginationLink
-                              isActive={page === currentPage}
-                              onClick={() => setCurrentPage(page)}
-                            >
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>
-                        );
-                      })}
-                    
-                    <PaginationItem>
-                      <PaginationNext 
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        disabled={currentPage === totalPages}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredData.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={queryResult.columns.length} className="h-24 text-center">
+                          No results found.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredData.map((row, rowIndex) => (
+                        <TableRow key={rowIndex}>
+                          {queryResult.columns.map((column) => (
+                            <TableCell key={`${rowIndex}-${column}`}>
+                              {row[column] !== null && row[column] !== undefined 
+                                ? String(row[column]) 
+                                : <span className="text-muted-foreground">null</span>}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               </div>
-            )}
+            </TabsContent>
           </CardContent>
         </Card>
       )}

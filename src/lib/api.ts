@@ -1,4 +1,3 @@
-
 import { AuthResponse, LoginCredentials, User, Group, AccessLevel, Menu, Screen, Permission } from './types';
 
 // In a real app, this would come from an environment variable
@@ -362,10 +361,61 @@ class API {
     }
   }
 
-  // Users API
+  // Users API - extended with create, update, delete
   async getUsers(): Promise<User[]> {
     await new Promise(resolve => setTimeout(resolve, 500));
     return mockUsers;
+  }
+
+  async createUser(userData: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User> {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    const newUser: User = {
+      id: `${mockUsers.length + 1}`,
+      name: userData.name,
+      email: userData.email,
+      role: userData.role,
+      groupId: userData.groupId,
+      accessLevelId: userData.accessLevelId,
+      status: userData.status,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    mockUsers.push(newUser);
+    return newUser;
+  }
+
+  async updateUser(id: string, userData: Partial<User>): Promise<User> {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    const userIndex = mockUsers.findIndex(u => u.id === id);
+    if (userIndex === -1) {
+      throw new Error('User not found');
+    }
+    
+    const updatedUser = {
+      ...mockUsers[userIndex],
+      ...userData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    mockUsers[userIndex] = updatedUser;
+    return updatedUser;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const userIndex = mockUsers.findIndex(u => u.id === id);
+    if (userIndex === -1) {
+      throw new Error('User not found');
+    }
+    
+    mockUsers.splice(userIndex, 1);
   }
 
   // Groups API
