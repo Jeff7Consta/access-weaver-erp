@@ -10,15 +10,15 @@ export const getUsers = async (): Promise<User[]> => {
 
   if (error) throw error;
   
-  // Transform snake_case to camelCase
+  // Transform snake_case to camelCase and ensure correct typing
   return data.map(item => ({
     id: item.id,
     name: item.name,
     email: item.email,
-    role: item.role,
+    role: item.role as "admin" | "user", // Cast to the expected literal type
     groupId: item.group_id,
     accessLevelId: item.access_level_id,
-    status: item.status,
+    status: item.status as "active" | "blocked", // Cast to the expected literal type
     createdAt: item.created_at,
     updatedAt: item.updated_at
   }));
@@ -33,22 +33,22 @@ export const getUserById = async (id: string): Promise<User> => {
 
   if (error) throw error;
   
-  // Transform snake_case to camelCase
+  // Transform snake_case to camelCase and ensure correct typing
   return {
     id: data.id,
     name: data.name,
     email: data.email,
-    role: data.role,
+    role: data.role as "admin" | "user", // Cast to the expected literal type
     groupId: data.group_id,
     accessLevelId: data.access_level_id,
-    status: data.status,
+    status: data.status as "active" | "blocked", // Cast to the expected literal type
     createdAt: data.created_at,
     updatedAt: data.updated_at
   };
 };
 
 export const createUser = async (user: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User> => {
-  // Convert camelCase to snake_case
+  // Convert camelCase to snake_case for database insertion
   const { data, error } = await supabase
     .from('users')
     .insert({
@@ -64,15 +64,15 @@ export const createUser = async (user: Omit<User, "id" | "createdAt" | "updatedA
 
   if (error) throw error;
   
-  // Transform snake_case to camelCase
+  // Transform snake_case to camelCase for application
   return {
     id: data.id,
     name: data.name,
     email: data.email,
-    role: data.role,
+    role: data.role as "admin" | "user", // Cast to the expected literal type
     groupId: data.group_id,
     accessLevelId: data.access_level_id,
-    status: data.status,
+    status: data.status as "active" | "blocked", // Cast to the expected literal type
     createdAt: data.created_at,
     updatedAt: data.updated_at
   };
@@ -97,15 +97,15 @@ export const updateUser = async (id: string, user: Partial<User>): Promise<User>
 
   if (error) throw error;
   
-  // Transform snake_case to camelCase
+  // Transform snake_case to camelCase for application
   return {
     id: data.id,
     name: data.name,
     email: data.email,
-    role: data.role,
+    role: data.role as "admin" | "user", // Cast to the expected literal type
     groupId: data.group_id,
     accessLevelId: data.access_level_id,
-    status: data.status,
+    status: data.status as "active" | "blocked", // Cast to the expected literal type
     createdAt: data.created_at,
     updatedAt: data.updated_at
   };
